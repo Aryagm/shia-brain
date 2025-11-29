@@ -210,7 +210,9 @@ async def segment(file: UploadFile = File(...)):
         })
 
     except Exception as e:
-        print(f"Error: {str(e)}")
+        import traceback
+        print(f"ERROR in /segment: {str(e)}")
+        traceback.print_exc()
         raise HTTPException(500, f"Segmentation failed: {str(e)}")
 
 @app.post("/segment/compact")
@@ -250,6 +252,9 @@ async def segment_compact(file: UploadFile = File(...)):
         })
 
     except Exception as e:
+        import traceback
+        print(f"ERROR in /segment/compact: {str(e)}")
+        traceback.print_exc()
         raise HTTPException(500, f"Segmentation failed: {str(e)}")
 
 if __name__ == "__main__":
