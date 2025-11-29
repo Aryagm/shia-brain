@@ -5,6 +5,7 @@ import viteCompression from 'vite-plugin-compression'
 export default defineConfig({
   root: './atrophy',
   base: '/',
+  publicDir: '../public',
   plugins: [
     // Generate gzip compressed files
     viteCompression({
