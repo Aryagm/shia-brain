@@ -28,6 +28,72 @@ import { inferenceModelsList, brainChopOpts } from "../brainchop-parameters.js";
 import { isChrome } from "../brainchop-diagnostics.js";
 
 // ============================================
+// SERVER-SIDE INFERENCE CONFIGURATION
+// Set USE_SERVER = true to use HuggingFace GPU server
+// Set your HuggingFace Space URL below after deployment
+// ============================================
+const USE_SERVER = false;  // Toggle this to enable server-side inference
+const SERVER_URL = "https://YOUR-USERNAME-shia-brain.hf.space";  // Update after deploying
+
+/**
+ * Run inference on the server (HuggingFace Space with GPU)
+ * Falls back to local inference if server is unavailable
+ */
+async function runServerInference(niftiHeader, niftiImage, progressCallback) {
+  progressCallback("Connecting to GPU server...", 0.05);
+
+  // Create NIfTI file blob from the raw data
+  const blob = new Blob([niftiImage], { type: 'application/octet-stream' });
+  const formData = new FormData();
+  formData.append('file', blob, 'brain.nii');
+
+  try {
+    progressCallback("Uploading scan to server...", 0.1);
+
+    const response = await fetch(`${SERVER_URL}/segment/compact`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Server error: ${response.status}`);
+    }
+
+    progressCallback("Processing on GPU...", 0.3);
+
+    const result = await response.json();
+
+    if (!result.success) {
+      throw new Error(result.error || 'Server inference failed');
+    }
+
+    progressCallback("Downloading results...", 0.8);
+
+    // Decode base64 gzipped segmentation
+    const binaryString = atob(result.data);
+    const compressedBytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      compressedBytes[i] = binaryString.charCodeAt(i);
+    }
+
+    // Decompress using pako (included via CDN or import)
+    const decompressed = pako.ungzip(compressedBytes);
+
+    progressCallback("Segmentation complete!", 1.0);
+
+    return {
+      segmentation: decompressed,
+      shape: result.shape,
+      inferenceTime: result.inference_time
+    };
+
+  } catch (error) {
+    console.error("Server inference failed:", error);
+    throw new Error(`Server inference failed: ${error.message}. Try local mode.`);
+  }
+}
+
+// ============================================
 // NORMATIVE DATA - BILATERAL VOLUMES
 // Based on peer-reviewed literature:
 // - Potvin et al. (2016) FreeSurfer subcortical normative data (n=2,713)
@@ -736,6 +802,31 @@ async function runSegmentation() {
 
   await ensureConformed();
 
+  // Use server-side inference if enabled
+  if (USE_SERVER) {
+    try {
+      const result = await runServerInference(
+        nv1.volumes[0].hdr,
+        nv1.volumes[0].img,
+        (message, progress) => {
+          const adjustedProgress = 10 + progress * 55;
+          updateProgress(adjustedProgress, message);
+        }
+      );
+
+      segmentationData = new Uint8Array(result.segmentation);
+      await displaySegmentation(result.segmentation, model);
+      console.log(`Server inference completed in ${result.inferenceTime}s`);
+      return;
+
+    } catch (error) {
+      console.error("Server inference failed, falling back to local:", error);
+      updateProgress(10, "Server unavailable, using local processing...");
+      // Fall through to local inference
+    }
+  }
+
+  // Local inference (original code)
   return new Promise((resolve, reject) => {
     runInference(
       opts,
