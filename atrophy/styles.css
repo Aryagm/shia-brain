@@ -343,6 +343,17 @@ body {
   border-color: var(--accent-primary);
 }
 
+.sample-download {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.sample-download .btn-sample {
+  width: 100%;
+  justify-content: center;
+}
+
 /* Summary Grid */
 .summary-grid {
   display: grid;

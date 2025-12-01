@@ -1,8 +1,8 @@
-# S.H.I.A - Structured Health Intelligence for Alzheimer's
+# Cognify - AI-Powered Brain Analysis
 
 **Medical-grade brain volumetric analysis for early detection of Alzheimer's disease and neurodegeneration.**
 
-S.H.I.A is an AI-powered web application that analyzes brain MRI scans to detect early signs of neurodegeneration, with a focus on Alzheimer's disease and Mild Cognitive Impairment (MCI).
+Cognify is an AI-powered web application that analyzes brain MRI scans to detect early signs of neurodegeneration, with a focus on Alzheimer's disease and Mild Cognitive Impairment (MCI).
 
 ## Features
 
@@ -93,4 +93,4 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ---
 
-*S.H.I.A - Advancing early detection of Alzheimer's disease through AI-powered neuroimaging analysis.*
+*Cognify - Advancing early detection of Alzheimer's disease through AI-powered neuroimaging analysis.*

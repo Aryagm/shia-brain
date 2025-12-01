@@ -1,5 +1,5 @@
 /**
- * S.H.I.A - Structured Health Intelligence for Alzheimer's
+ * Cognify - AI-Powered Brain Analysis
  *
  * Medical-grade volumetric analysis for detecting brain atrophy
  * and early signs of Alzheimer's disease using AI-powered segmentation

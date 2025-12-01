@@ -3,9 +3,9 @@ import { resolve } from 'path'
 import viteCompression from 'vite-plugin-compression'
 
 export default defineConfig({
-  root: './atrophy',
+  root: '.',
   base: '/',
-  publicDir: '../public',
+  publicDir: './public',
   plugins: [
     // Generate gzip compressed files
     viteCompression({
